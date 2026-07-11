@@ -1,0 +1,98 @@
+{
+  "name": "Compact - Cleaning Business Platform",
+  "short_name": "Compact",
+  "description": "Professional management platform for cleaning and facilities businesses. Schedule crews, track invoices, manage payroll, and automate inspections.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0071e3",
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230071e3' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui'>C</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%230071e3' width='512' height='512'/><text x='256' y='256' font-size='200' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui'>C</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230071e3' rx='45' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>C</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230071e3' rx='45' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>C</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%230071e3' rx='120' width='512' height='512'/><text x='256' y='256' font-size='200' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>C</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open the Compact dashboard",
+      "url": "/?view=dashboard",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230071e3' rx='45' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>D</text></svg>",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Field App",
+      "short_name": "Field App",
+      "description": "Access the field task app",
+      "url": "/?view=fieldapp",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%2330d158' rx='45' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>F</text></svg>",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Invoicing",
+      "short_name": "Invoicing",
+      "description": "Check invoices and payments",
+      "url": "/?view=invoicing",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23ff9500' rx='45' width='192' height='192'/><text x='96' y='96' font-size='80' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui' font-weight='600'>$</text></svg>",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "prefer_related_applications": false
+}
