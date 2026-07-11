@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Compact — Cleaning Business Platform</title>
+<meta name="theme-color" content="#0071e3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Compact">
+<link rel="manifest" href="/manifest.json">
+<style>
+:root{--brand:#0071e3;--brand-2:#30d158;--ink:#1d1d1f;--ink-2:#6f6f77;--muted:#a1a1a6;--line:#d2d2d7;--surface-1:#fff;--surface-2:#f5f5f7}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:var(--surface-2);color:var(--ink)}
+#loginScreen{position:fixed;inset:0;z-index:200;display:grid;grid-template-columns:1.1fr 1fr;background:#fff}
+#loginScreen.hide{display:none}
+.lg-brand{background:linear-gradient(135deg,#0071e3,#30d158);color:#fff;padding:60px;display:flex;flex-direction:column;justify-content:center}
+.lg-brand h2{font-size:36px;font-weight:800;margin-bottom:14px}
+.lg-brand p{color:#c4cddc;font-size:15px}
+.lg-form{padding:56px;display:flex;flex-direction:column;justify-content:center}
+.lg-form h3{font-size:24px;font-weight:700;margin:0 0 4px}
+.lg-field{margin:14px 0}.lg-field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
+.lg-field input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:11px;font-size:14px}
+.lg-btn{width:100%;padding:13px;margin-top:6px;background:linear-gradient(135deg,#0071e3,#30d158);color:#fff;border:0;border-radius:11px;font-weight:700;font-size:15px;cursor:pointer}
+@media(max-width:768px){#loginScreen{grid-template-columns:1fr}.lg-brand{display:none}.lg-form{padding:40px 20px}}
+#app{display:grid;grid-template-columns:240px 1fr;height:100vh;overflow:hidden}
+#app.hide{display:none}
+@media(max-width:768px){#app{grid-template-columns:1fr}}
+.sidebar{background:var(--surface-1);display:flex;flex-direction:column;overflow-y:auto;border-right:1px solid var(--line)}
+@media(max-width:768px){.sidebar{position:fixed;left:0;top:0;width:85vw;height:100vh;z-index:100;transform:translateX(-100%);transition:.3s}.sidebar.open{transform:translateX(0)}}
+.sidebar-overlay{display:none}
+@media(max-width:768px){.sidebar-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}}
+.brand{padding:20px;font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px}
+.brand .logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#0071e3,#30d158);color:#fff;display:grid;place-items:center;font-weight:700}
+.nav{flex:1;padding:6px 12px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;color:var(--ink-2);text-decoration:none;border-radius:10px;font-size:14px;margin-bottom:2px}
+.nav a:hover{background:var(--surface-2)}
+.nav a.active{background:linear-gradient(135deg,#0071e3,#30d158);color:#fff}
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:62px;background:var(--surface-1);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:13px;padding:0 24px;flex-shrink:0}
+@media(max-width:768px){.topbar{height:56px;padding:0 12px}}
+.topbar h1{font-size:17px;margin:0;font-weight:700}
+#menuToggle{display:none;width:44px;height:44px;border:0;background:none;font-size:22px;color:var(--brand);cursor:pointer}
+@media(max-width:768px){#menuToggle{display:block}}
+.tb-btn{width:37px;height:37px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;font-size:15px}
+.content{flex:1;overflow-y:auto;padding:24px}
+@media(max-width:768px){.content{padding:12px 16px}}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:19px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:768px){.kpis{grid-template-columns:1fr}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.kpi .lab{color:var(--ink-2);font-size:12px;font-weight:500}
+.kpi .val{font-size:27px;font-weight:700;margin:10px 0 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:11px 15px;border-bottom:1px solid var(--line);font-size:11px}
+td{padding:13px 15px;border-bottom:1px solid var(--line)}
+tr:hover{background:var(--surface-2)}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--surface-2)}
+.badge.good{background:#0ca30c15;color:#0a7d0a}
+.badge.warn{background:#f5a62320;color:#96650a}
+.badge.crit{background:#e0413f15;color:#bd2b29}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="lg-brand">
+    <div style="font-size:40px;margin-bottom:20px">✦</div>
+    <h2>Compact</h2>
+    <p>Professional management platform for cleaning & facilities businesses</p>
+  </div>
+  <div class="lg-form">
+    <h3>Sign In</h3>
+    <div class="lg-field"><label>Email</label><input id="lgEmail" value="janith@compact.app" type="email"></div>
+    <div class="lg-field"><label>Password</label><input id="lgPass" type="password" value="demo"></div>
+    <button class="lg-btn" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+  <div class="main">
+    <header class="topbar">
+      <button id="menuToggle" onclick="toggleMenu()">☰</button>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div style="flex:1"></div>
+      <button class="tb-btn" onclick="toggleUserMenu()">👤</button>
+    </header>
+    <div class="content" id="view"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// STATE
+let state = { view: 'dashboard', role: 'admin' };
+let currentUser = null;
+
+// DATA
+const staff = [
+  { name: 'Maria Silva', role: 'Site Supervisor', site: 'Westfield Tower' },
+  { name: 'James Okoro', role: 'Cleaner', site: 'Central Hospital' },
+  { name: 'Grace Mensah', role: 'Site Supervisor', site: 'Riverside Mall' },
+];
+
+const sites = [
+  { name: 'Westfield Tower', client: 'Westfield Group', crew: 6, contract: 14200, score: 96 },
+  { name: 'Central Hospital', client: 'NT Health', crew: 9, contract: 28500, score: 91 },
+  { name: 'Riverside Mall', client: 'Riverside Prop.', crew: 7, contract: 18900, score: 88 },
+];
+
+const invoices = [
+  { id: 'INV-2041', client: 'Westfield Group', amount: 14200, status: 'Paid', badge: 'good' },
+  { id: 'INV-2042', client: 'NT Health', amount: 28500, status: 'Sent', badge: 'warn' },
+  { id: 'INV-2043', client: 'Riverside Prop.', amount: 18900, status: 'Overdue', badge: 'crit' },
+];
+
+const NAV = [
+  { icon: '📊', name: 'Dashboard', view: 'dashboard' },
+  { icon: '🏢', name: 'Sites', view: 'sites' },
+  { icon: '💳', name: 'Invoicing', view: 'invoicing' },
+  { icon: '👥', name: 'Team', view: 'team' },
+  { icon: '⚙️', name: 'Settings', view: 'settings' },
+];
+
+// FUNCTIONS
+function doLogin() {
+  const email = document.getElementById('lgEmail').value;
+  if(!email) {
+    alert('Please enter email');
+    return;
+  }
+  currentUser = { email };
+  document.getElementById('loginScreen').classList.add('hide');
+  document.getElementById('app').classList.remove('hide');
+  renderNav();
+  renderView();
+}
+
+function logout() {
+  currentUser = null;
+  state.view = 'dashboard';
+  document.getElementById('loginScreen').classList.remove('hide');
+  document.getElementById('app').classList.add('hide');
+}
+
+function toggleMenu() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+
+function toggleUserMenu() {
+  alert('User: ' + currentUser.email + '\n\nLogout via Settings menu');
+}
+
+function go(view) {
+  state.view = view;
+  renderView();
+  toggleMenu();
+  return false;
+}
+
+function renderNav() {
+  const html = `
+    <div class="brand"><div class="logo">✦</div>Compact</div>
+    <nav class="nav">
+      ${NAV.map(n => `<a href="#" onclick="return go('${n.view}')" class="nav-link"><span>${n.icon}</span>${n.name}</a>`).join('')}
+    </nav>
+  `;
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+function renderView() {
+  const v = document.getElementById('view');
+  const title = document.getElementById('pageTitle');
+
+  if(state.view === 'dashboard') {
+    title.textContent = 'Dashboard';
+    v.innerHTML = `
+      <div class="kpis">
+        <div class="kpi"><div class="lab">Revenue</div><p class="val">$310k</p></div>
+        <div class="kpi"><div class="lab">Active Sites</div><p class="val">${sites.length}</p></div>
+        <div class="kpi"><div class="lab">Staff</div><p class="val">${staff.length}</p></div>
+        <div class="kpi"><div class="lab">Pending</div><p class="val">${invoices.filter(i=>i.status==='Sent').length}</p></div>
+      </div>
+      <div class="card"><h2>Recent Invoices</h2><table>
+        <thead><tr><th>ID</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>${invoices.map(i=>`<tr><td>${i.id}</td><td>${i.client}</td><td>$${i.amount.toLocaleString()}</td><td><span class="badge ${i.badge}">${i.status}</span></td></tr>`).join('')}</tbody>
+      </table></div>
+      <div class="card" style="margin-top:24px"><h2>Staff</h2><table>
+        <thead><tr><th>Name</th><th>Role</th><th>Site</th></tr></thead>
+        <tbody>${staff.map(s=>`<tr><td>${s.name}</td><td>${s.role}</td><td>${s.site}</td></tr>`).join('')}</tbody>
+      </table></div>
+    `;
+  } else if(state.view === 'sites') {
+    title.textContent = 'Sites';
+    v.innerHTML = `<div class="card"><h2>All Sites</h2><table>
+      <thead><tr><th>Name</th><th>Client</th><th>Crew</th><th>Contract</th><th>Score</th></tr></thead>
+      <tbody>${sites.map(s=>`<tr><td>${s.name}</td><td>${s.client}</td><td>${s.crew}</td><td>$${s.contract.toLocaleString()}</td><td><span class="badge good">${s.score}%</span></td></tr>`).join('')}</tbody>
+    </table></div>`;
+  } else if(state.view === 'invoicing') {
+    title.textContent = 'Invoicing';
+    v.innerHTML = `<div class="card"><h2>All Invoices</h2><table>
+      <thead><tr><th>ID</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>${invoices.map(i=>`<tr><td>${i.id}</td><td>${i.client}</td><td>$${i.amount.toLocaleString()}</td><td><span class="badge ${i.badge}">${i.status}</span></td></tr>`).join('')}</tbody>
+    </table></div>`;
+  } else if(state.view === 'team') {
+    title.textContent = 'Team';
+    v.innerHTML = `<div class="card"><h2>Team Members</h2><table>
+      <thead><tr><th>Name</th><th>Role</th><th>Site</th></tr></thead>
+      <tbody>${staff.map(s=>`<tr><td>${s.name}</td><td>${s.role}</td><td>${s.site}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+  } else if(state.view === 'settings') {
+    title.textContent = 'Settings';
+    v.innerHTML = `<div class="card"><h2>Account Settings</h2><p><strong>Email:</strong> ${currentUser.email}</p><p><strong>Role:</strong> Admin</p><button onclick="logout()" style="padding:10px 20px;background:#ff3b30;color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;margin-top:20px">Logout</button></div>`;
+  } else {
+    title.textContent = state.view;
+    v.innerHTML = `<div class="card"><h2>${state.view}</h2><p>Coming soon...</p></div>`;
+  }
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('lgEmail').value = 'janith@compact.app';
+  document.getElementById('lgPass').value = 'demo';
+});
+
+// PWA
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js').then(() => {
+    console.log('✓ Service Worker registered');
+  }).catch(err => {
+    console.log('SW error:', err);
+  });
+}
+</script>
+
+</body>
+</html>
