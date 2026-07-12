@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0070D8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Compact">
+<title>Compact — Cleaning Business Platform</title>
+<style>
+:root{
+  /* WCAG AA Compliant Sky Blue Theme */
+  --brand:#0070D8;--brand-hover:#0559b8;--brand-active:#004bab;
+  --brand-light:#e8f2ff;--brand-dark:#00358a;
+  --success:#0a9f41;--success-light:#e6f4eb;--warn:#e07c23;--warn-light:#fff3e5;
+  --danger:#c9302c;--danger-light:#fde5e3;--info:#1976d2;--info-light:#e3f2fd;
+  /* Surfaces */
+  --surface-1:#ffffff;--surface-2:#f8f9fa;--surface-3:#f0f1f3;
+  --page:#f5f6f7;--sidebar:#f8f9fa;
+  /* Text - WCAG AA compliant (≥4.5:1 contrast) */
+  --text:#1a1a1a;--text-secondary:#424245;--text-muted:#767680;--text-disabled:#bfbfbf;
+  /* Borders and dividers */
+  --border:#d0d1d6;--border-light:#e4e5e8;
+  /* Status colors */
+  --good:#0a9f41;--caution:#f59e0b;--critical:#dc2626;--neutral:#6b7280;
+  /* Radius */
+  --radius:12px;--radius-lg:16px;--radius-sm:8px;--radius-xs:4px;
+  /* Shadows */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 2px 4px rgba(0,0,0,.08);
+  --shadow-lg:0 4px 12px rgba(0,0,0,.1);
+  --shadow-xl:0 8px 24px rgba(0,0,0,.12);
+}
+
+/* Dark mode support */
+@media(prefers-color-scheme:dark){
+  :root{
+    --surface-1:#1a1a1a;--surface-2:#242528;--surface-3:#2d2e32;
+    --page:#0d0e11;--sidebar:#1a1b1f;
+    --text:#f5f5f7;--text-secondary:#c7c7cc;--text-muted:#8e8e93;
+    --border:#424245;--border-light:#5a5a60;
+  }
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Helvetica,Arial,sans-serif;background:var(--page);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.015em;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;cursor:pointer;border:none}
+a{color:var(--brand);text-decoration:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--surface-2)}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* App Layout */
+#app{display:grid;grid-template-columns:256px 1fr;height:100vh;overflow:hidden}
+#app.mobile-nav-open{grid-template-columns:1fr}
+
+.sidebar{background:var(--sidebar);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;z-index:100}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+.sidebar-overlay.open{display:block}
+
+@media(max-width:768px){
+  #app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:85vw;height:100vh;transform:translateX(-100%);transition:transform .3s;z-index:100}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .sidebar-overlay{display:none}
+  .sidebar-overlay.open{display:block}
+}
+
+/* Brand Header */
+.brand-section{padding:16px 16px 8px;border-bottom:1px solid var(--border-light)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;color:var(--text)}
+.logo-icon{width:40px;height:40px;border-radius:var(--radius);background:linear-gradient(135deg,var(--brand),#006ec7);color:var(--surface-1);display:grid;place-items:center;font-size:20px;font-weight:700;box-shadow:var(--shadow-md)}
+
+/* Navigation */
+.nav-section{padding:8px 12px;flex:1;overflow-y:auto}
+.nav-group-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:12px 12px 6px;padding:0 4px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:var(--text-secondary);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:2px}
+.nav-item:hover{background:var(--surface-2);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,var(--brand),#0559b8);color:var(--surface-1);font-weight:600;box-shadow:var(--shadow-md)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--surface-1);border-radius:0 2px 2px 0}
+.nav-icon{width:18px;text-align:center;font-size:16px}
+.nav-badge{margin-left:auto;background:var(--danger);color:var(--surface-1);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+
+/* Billing/Upgrade Section */
+.upgrade-section{padding:12px;margin:12px;background:linear-gradient(135deg,rgba(0,112,216,.08),rgba(10,159,65,.08));border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden}
+.upgrade-section h4{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--text)}
+.upgrade-section p{margin:0 0 10px;font-size:12px;color:var(--text-secondary)}
+.upgrade-section button{width:100%;padding:9px;background:var(--brand);color:var(--surface-1);border-radius:8px;font-weight:600;font-size:12px}
+.upgrade-section button:hover{background:var(--brand-hover)}
+
+/* Main Content */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:64px;background:var(--surface-1);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;flex-shrink:0;z-index:50}
+.topbar h1{font-size:18px;font-weight:700;margin:0}
+.hamburger{display:none;width:44px;height:44px;border-radius:var(--radius-sm);background:none;color:var(--text);font-size:20px;cursor:pointer}
+@media(max-width:768px){
+  .hamburger{display:flex;align-items:center;justify-content:center}
+  .topbar{padding:0 12px}
+  .topbar h1{font-size:16px}
+}
+
+.spacer{flex:1}
+.toolbar{display:flex;align-items:center;gap:12px}
+.topbar-btn{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--surface-2);border:1px solid var(--border);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:all .2s;font-size:16px;position:relative}
+.topbar-btn:hover{background:var(--surface-3);border-color:var(--border)}
+.topbar-btn.badge::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--surface-1)}
+
+/* Content Area */
+.content{flex:1;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch}
+@media(max-width:768px){
+  .content{padding:16px 12px}
+}
+
+/* Cards and Common Elements */
+.card{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);transition:all .2s}
+.card:hover{box-shadow:var(--shadow-md)}
+.card.pad{padding:20px}
+.card-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-body{padding:20px}
+
+/* Typography */
+.page-title{font-size:24px;font-weight:700;margin:0 0 8px;letter-spacing:-.01em}
+.page-subtitle{color:var(--text-muted);font-size:14px;margin:0}
+.section-title{font-size:16px;font-weight:700;margin:24px 0 16px;letter-spacing:-.01em}
+.section-subtitle{color:var(--text-muted);font-size:13px}
+
+/* Buttons */
+.btn{padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:8px;transition:all .2s;cursor:pointer;border:1px solid var(--border);background:var(--surface-1);color:var(--text)}
+.btn:hover{background:var(--surface-2);border-color:var(--border)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--surface-1)}
+.btn.primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+.btn.success{background:var(--good);border-color:var(--good);color:var(--surface-1)}
+.btn.success:hover{background:#088630;border-color:#088630}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:var(--surface-1)}
+.btn.danger:hover{background:#a52622;border-color:#a52622}
+.btn.ghost{background:none;border:none}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:8px 12px;font-size:12px}
+.btn.lg{padding:12px 24px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;background:var(--surface-3);color:var(--text-secondary)}
+.badge.good{background:var(--success-light);color:var(--good)}
+.badge.warn{background:var(--warn-light);color:var(--warn)}
+.badge.crit{background:var(--danger-light);color:var(--danger)}
+.badge.info{background:var(--info-light);color:var(--info)}
+.badge.neutral{background:var(--surface-3);color:var(--text-secondary)}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--text-muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+td{padding:14px 16px;border-bottom:1px solid var(--border-light)}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+
+/* Forms */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.form-help{font-size:12px;color:var(--text-muted);margin-top:4px}
+.form-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface-1);color:var(--text);transition:all .2s}
+.form-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,112,216,.1)}
+.form-input::placeholder{color:var(--text-muted)}
+.form-input:disabled{background:var(--surface-2);color:var(--text-disabled);cursor:not-allowed}
+.form-select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface-1);color:var(--text);cursor:pointer;transition:all .2s}
+.form-select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,112,216,.1)}
+
+/* KPIs and Grids */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);transition:all .2s}
+.kpi:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.kpi-label{color:var(--text-muted);font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0}
+.kpi-delta{font-size:12px;font-weight:600;margin-top:8px}
+.kpi-delta.up{color:var(--good)}
+.kpi-delta.down{color:var(--danger)}
+.kpi-delta.flat{color:var(--text-muted)}
+
+@media(max-width:1200px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .kpis{grid-template-columns:1fr}
+}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:200;padding:20px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.modal-overlay.open{display:grid}
+.modal{background:var(--surface-1);border-radius:var(--radius-lg);width:540px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);display:flex;flex-direction:column}
+.modal-header{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-header h2{margin:0;font-size:18px;font-weight:700}
+.modal-close{background:none;color:var(--text-muted);font-size:24px;cursor:pointer;width:32px;height:32px;display:grid;place-items:center;border-radius:var(--radius-sm)}
+.modal-close:hover{background:var(--surface-2);color:var(--text)}
+.modal-body{padding:24px;flex:1;overflow-y:auto}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;flex-shrink:0}
+
+/* Toasts */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:12px;max-width:400px}
+@media(max-width:640px){
+  .toast-container{bottom:12px;right:12px;left:12px;max-width:none}
+}
+.toast{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;animation:slideIn .3s}
+.toast.success{border-left:4px solid var(--good)}
+.toast.error{border-left:4px solid var(--danger)}
+.toast.warning{border-left:4px solid var(--warn)}
+.toast.info{border-left:4px solid var(--info)}
+@keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Loading and States */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted)}
+.empty-state-icon{font-size:48px;margin-bottom:16px}
+.empty-state-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 8px}
+.empty-state-desc{font-size:13px;color:var(--text-muted);margin:0}
+
+/* Login Screen */
+#loginScreen{position:fixed;inset:0;z-index:200;display:grid;grid-template-columns:1.2fr 1fr;background:var(--surface-1)}
+#loginScreen.hide{display:none}
+.login-brand{background:linear-gradient(135deg,var(--brand),#006ec7);color:var(--surface-1);padding:60px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.login-brand::before{content:"";position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent);border-radius:50%}
+.login-logo{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:32px;margin-bottom:32px;position:relative;z-index:1}
+.login-brand h1{font-size:36px;font-weight:800;margin:0 0 16px;position:relative;z-index:1}
+.login-brand p{font-size:15px;opacity:.9;margin:0 0 24px;line-height:1.6;position:relative;z-index:1;max-width:380px}
+.login-features{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+.login-feature{display:flex;align-items:center;gap:12px;font-size:14px;opacity:.9}
+.login-feature-icon{width:24px;text-align:center}
+
+.login-form{padding:48px;display:flex;flex-direction:column;justify-content:center;max-width:100%;overflow-y:auto}
+.login-form h2{font-size:24px;font-weight:700;margin:0 0 8px}
+.login-form .subtitle{color:var(--text-muted);font-size:14px;margin:0 0 24px}
+.login-form .form-group{margin-bottom:16px}
+.login-tab-switch{display:flex;gap:8px;margin-bottom:24px;border-bottom:2px solid var(--border)}
+.login-tab-btn{padding:12px 16px;border:none;background:none;color:var(--text-muted);font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.login-tab-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
+.login-btn{width:100%;padding:12px;background:var(--brand);color:var(--surface-1);border-radius:var(--radius-sm);font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;margin-top:8px}
+.login-btn:hover{background:var(--brand-hover)}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-muted);font-size:12px}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.demo-accounts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.demo-account{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;cursor:pointer;transition:all .2s;background:var(--surface-2)}
+.demo-account:hover{border-color:var(--brand);background:var(--brand-light)}
+.demo-account-role{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.demo-account-email{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.demo-account-company{font-size:12px;color:var(--text-muted)}
+
+@media(max-width:820px){
+  #loginScreen{grid-template-columns:1fr}
+  .login-brand{display:none}
+  .login-form{padding:32px 20px}
+}
+
+/* Stock Management */
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.stock-card{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stock-bar{height:6px;background:var(--surface-3);border-radius:3px;overflow:hidden;margin:8px 0}
+.stock-bar-fill{height:100%;background:var(--good);border-radius:3px;transition:width .3s}
+.stock-bar-fill.warn{background:var(--warn)}
+.stock-bar-fill.crit{background:var(--danger)}
+
+/* Billing Plans */
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.plan-card{border:2px solid var(--border);border-radius:var(--radius-lg);padding:28px;background:var(--surface-1);position:relative;transition:all .3s}
+.plan-card:hover{border-color:var(--brand);box-shadow:var(--shadow-lg)}
+.plan-card.highlighted{border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,112,216,.1)}
+.plan-badge{position:absolute;top:-12px;left:24px;background:var(--brand);color:var(--surface-1);font-size:10px;font-weight:700;padding:4px 16px;border-radius:12px}
+.plan-name{font-size:16px;font-weight:700;margin-bottom:8px}
+.plan-price{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:16px 0 4px}
+.plan-price small{font-size:13px;color:var(--text-muted);font-weight:500}
+.plan-description{color:var(--text-muted);font-size:13px;margin:12px 0 20px}
+.plan-features{list-style:none;padding:0;margin:20px 0}
+.plan-feature{padding:10px 0;font-size:13px;display:flex;align-items:flex-start;gap:10px;color:var(--text-secondary)}
+.plan-feature::before{content:"✓";color:var(--good);font-weight:700;flex-shrink:0}
+.plan-cta{width:100%;padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-weight:600;cursor:pointer;margin-top:20px;transition:all .2s}
+.plan-cta:hover{background:var(--brand);border-color:var(--brand);color:var(--surface-1)}
+
+@media(max-width:1024px){
+  .plans-grid{grid-template-columns:1fr;max-width:500px}
+}
+
+/* Mobile Field App Styles */
+.mobile-app{background:linear-gradient(135deg,var(--brand),#006ec7);color:var(--surface-1);border-radius:40px;padding:12px;box-shadow:var(--shadow-xl);width:400px;max-width:100%;margin:0 auto}
+.mobile-app-screen{background:var(--page);color:var(--text);border-radius:30px;overflow:hidden;height:680px;display:flex;flex-direction:column;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+.mobile-app-header{background:linear-gradient(135deg,var(--brand),#006ec7);color:var(--surface-1);padding:20px 16px;font-weight:700}
+.mobile-app-body{flex:1;overflow-y:auto;padding:16px}
+.mobile-app-footer{background:var(--surface-2);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.mobile-app-tab{padding:12px 8px;text-align:center;font-size:10px;color:var(--text-muted);cursor:pointer;transition:all .2s;border-top:3px solid transparent}
+.mobile-app-tab.active{color:var(--brand);border-top-color:var(--brand)}
+.mobile-app-tab-icon{font-size:20px;margin-bottom:4px}
+
+/* Media Queries for Responsive Design */
+@media(max-width:768px){
+  .sidebar{width:100%}
+  .main{width:100%}
+
+  .page-title{font-size:20px}
+  .section-title{font-size:14px;margin:16px 0 12px}
+
+  .plans-grid{grid-template-columns:1fr}
+  .card{margin-bottom:12px}
+
+  table{font-size:12px}
+  th{padding:10px 12px}
+  td{padding:10px 12px}
+
+  .mobile-app{width:100%;max-width:480px}
+}
+
+/* Accessibility */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+button:focus-visible,a:focus-visible,.form-input:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-brand">
+    <div class="login-logo">✦</div>
+    <h1>Compact</h1>
+    <p>Run your entire cleaning business from one secure platform.</p>
+    <div class="login-features">
+      <div class="login-feature">
+        <div class="login-feature-icon">🏢</div>
+        <div>Private workspace for every company</div>
+      </div>
+      <div class="login-feature">
+        <div class="login-feature-icon">🔐</div>
+        <div>Bank-grade security & role-based access</div>
+      </div>
+      <div class="login-feature">
+        <div class="login-feature-icon">📱</div>
+        <div>Mobile field app for cleaners</div>
+      </div>
+      <div class="login-feature">
+        <div class="login-feature-icon">💳</div>
+        <div>Flexible billing & team management</div>
+      </div>
+    </div>
+  </div>
+  <div class="login-form">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Sign in to your Compact workspace</p>
+
+    <div class="login-tab-switch">
+      <button class="login-tab-btn active" onclick="switchLoginTab('signin')">Sign In</button>
+      <button class="login-tab-btn" onclick="switchLoginTab('signup')">Create Account</button>
+    </div>
+
+    <!-- Sign In Tab -->
+    <div id="signin-tab" class="login-tab-content">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="lgEmail" type="email" placeholder="you@company.com" value="janith@darwinclean.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="lgPassword" type="password" placeholder="••••••••" value="demo">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign In →</button>
+      <div class="login-divider">or use demo account</div>
+      <div class="demo-accounts">
+        <div class="demo-account" onclick="demoLogin('owner')">
+          <div class="demo-account-role">Owner</div>
+          <div class="demo-account-email">alice@darwin.com</div>
+          <div class="demo-account-company">Darwin Clean Co</div>
+        </div>
+        <div class="demo-account" onclick="demoLogin('manager')">
+          <div class="demo-account-role">Manager</div>
+          <div class="demo-account-email">bob@darwin.com</div>
+          <div class="demo-account-company">Darwin Clean Co</div>
+        </div>
+      </div>
+      <div class="demo-accounts" style="margin-bottom:0">
+        <div class="demo-account" style="grid-column:1/-1" onclick="demoLogin('cleaner')">
+          <div class="demo-account-role">Cleaner</div>
+          <div class="demo-account-email">grace@darwin.com</div>
+          <div class="demo-account-company">Mobile Field App</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign Up Tab -->
+    <div id="signup-tab" class="login-tab-content" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input class="form-input" id="signupCompany" type="text" placeholder="Your Company Inc">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="signupEmail" type="email" placeholder="you@company.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="signupPassword" type="password" placeholder="Min 8 characters">
+        <p class="form-help">Must include uppercase, lowercase, numbers</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Role</label>
+        <select class="form-select" id="signupRole">
+          <option value="owner">Owner</option>
+          <option value="manager">Manager</option>
+        </select>
+      </div>
+      <button class="login-btn" onclick="doSignup()">Create Account →</button>
+      <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:16px">
+        14-day free trial • No credit card required
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hide">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="brand-section">
+      <div class="brand">
+        <div class="logo-icon">✦</div>
+        <span>Compact</span>
+      </div>
+    </div>
+
+    <nav class="nav-section" id="navSection"></nav>
+
+    <div class="upgrade-section">
+      <h4>Upgrade Your Plan</h4>
+      <p>Unlock advanced features and team management</p>
+      <button onclick="showBilling()">View Plans</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="spacer"></div>
+      <div class="toolbar">
+        <input class="form-input" id="searchBox" type="text" placeholder="Search..." style="width:200px" onkeyup="doSearch()">
+        <button class="topbar-btn" id="notifBtn" onclick="toggleNotifications()">🔔</button>
+        <button class="topbar-btn" onclick="toggleAI()">💬</button>
+        <button class="topbar-btn" onclick="toggleUserMenu()">👤</button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content" id="view"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Notifications Panel -->
+<div class="modal-overlay" id="notificationsOverlay" onclick="closeNotifications()">
+  <div class="modal" style="width:400px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Notifications</h2>
+      <button class="modal-close" onclick="closeNotifications()">×</button>
+    </div>
+    <div class="modal-body" id="notificationsPanel">
+      <!-- Generated dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- AI Panel (side panel) -->
+<div id="aiPanel" style="display:none">
+  <div class="modal-header">
+    <h2>AI Assistant</h2>
+    <button class="modal-close" onclick="toggleAI()">×</button>
+  </div>
+  <div class="modal-body" id="aiChat" style="overflow-y:auto">
+    <!-- Messages generated dynamically -->
+  </div>
+  <div style="padding:16px;border-top:1px solid var(--border)">
+    <div style="display:flex;gap:8px">
+      <input class="form-input" id="aiInput" placeholder="Ask anything..." style="flex:1">
+      <button class="btn primary sm" onclick="sendAIMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>'use strict';
+
+// STATE MANAGEMENT
+let state = { view: 'dashboard', role: 'owner', company: 'darwin-clean', subscription: 'growth' };
+let currentUser = null;
+
+// DATA STRUCTURES
+const companies = {
+  'darwin-clean': {
+    name: 'Darwin Clean Co',
+    owner: 'Alice Chen',
+    staff: [
+      { id: 'alice', name: 'Alice Chen', email: 'alice@darwinclean.com', role: 'owner', rate: 0, status: 'active', hired: '2024-01-15', site: null },
+      { id: 'bob', name: 'Bob Johnson', email: 'bob@darwinclean.com', role: 'manager', rate: 28, status: 'active', hired: '2024-02-01', site: 'Westfield' },
+      { id: 'grace', name: 'Grace Mensah', email: 'grace@darwinclean.com', role: 'cleaner', rate: 38, status: 'active', hired: '2024-02-15', site: 'Westfield', hoursThisWeek: 32, pts: 1250 },
+      { id: 'james', name: 'James Okoro', email: 'james@darwinclean.com', role: 'cleaner', rate: 36, status: 'active', hired: '2024-03-01', site: 'Central', hoursThisWeek: 28, pts: 980 },
+      { id: 'maria', name: 'Maria Silva', email: 'maria@darwinclean.com', role: 'cleaner', rate: 37, status: 'active', hired: '2024-03-10', site: 'Riverside', hoursThisWeek: 35, pts: 1150 },
+    ],
+    sites: [
+      { id: 'west', name: 'Westfield Tower', client: 'Westfield Group', crew: 6, contract: 14200, score: 96, frequency: 'Daily', supervisor: 'Bob Johnson', stock: { supplies: 85, equipment: 72, chemicals: 92 }, consumption: { avg_weekly: 12, trend: 'stable' } },
+      { id: 'central', name: 'Central Hospital', client: 'NT Health', crew: 9, contract: 28500, score: 91, frequency: '6x/week', supervisor: 'Bob Johnson', stock: { supplies: 45, equipment: 58, chemicals: 62 }, consumption: { avg_weekly: 28, trend: 'increasing' } },
+      { id: 'river', name: 'Riverside Mall', client: 'Riverside Prop.', crew: 7, contract: 18900, score: 88, frequency: 'Daily', supervisor: 'Maria Silva', stock: { supplies: 68, equipment: 80, chemicals: 75 }, consumption: { avg_weekly: 18, trend: 'stable' } },
+    ],
+    invoices: [
+      { id: 'INV-2041', client: 'Westfield Group', amount: 14200, status: 'Paid', dueDate: '2024-06-15', issueDate: '2024-06-01', reminded: false },
+      { id: 'INV-2042', client: 'NT Health', amount: 28500, status: 'Sent', dueDate: '2024-07-15', issueDate: '2024-07-01', reminded: false },
+      { id: 'INV-2043', client: 'Riverside Prop.', amount: 18900, status: 'Overdue', dueDate: '2024-06-30', issueDate: '2024-06-16', reminded: false },
+    ],
+    billing: {
+      plan: 'growth',
+      price: 199,
+      nextRenewal: '2024-08-15',
+      status: 'active',
+      invoices: [
+        { date: '2024-07-15', amount: 199, status: 'Paid', invoice: 'BIL-7001' },
+        { date: '2024-06-15', amount: 199, status: 'Paid', invoice: 'BIL-6001' },
+      ]
+    },
+    settings: {
+      currency: 'AUD',
+      timezone: 'Australia/Sydney',
+      language: 'en'
+    }
+  }
+};
+
+const NAVIGATION = [
+  { section: 'DASHBOARDS', items: [
+    { icon: '📊', name: 'Dashboard', view: 'dashboard', roles: ['owner', 'manager'] },
+    { icon: '⏱️', name: 'Time & Attendance', view: 'timesheet', roles: ['owner', 'manager'] },
+  ]},
+  { section: 'OPERATIONS', items: [
+    { icon: '📍', name: 'Sites', view: 'sites', roles: ['owner', 'manager'] },
+    { icon: '📋', name: 'Tasks', view: 'tasks', roles: ['owner', 'manager', 'cleaner'] },
+    { icon: '📸', name: 'Inspections', view: 'inspections', roles: ['owner', 'manager'] },
+  ]},
+  { section: 'PEOPLE', items: [
+    { icon: '👥', name: 'Team', view: 'team', roles: ['owner', 'manager'] },
+    { icon: '🏆', name: 'Performance', view: 'performance', roles: ['owner', 'manager'] },
+    { icon: '📖', name: 'HR & Onboarding', view: 'hr', roles: ['owner', 'manager'] },
+  ]},
+  { section: 'FINANCE & BILLING', items: [
+    { icon: '💼', name: 'Invoicing', view: 'invoicing', roles: ['owner', 'manager'] },
+    { icon: '💰', name: 'Financial Reports', view: 'finance', roles: ['owner'] },
+    { icon: '📦', name: 'Stock Management', view: 'stock', roles: ['owner', 'manager'] },
+  ]},
+  { section: 'SETTINGS', items: [
+    { icon: '⚙️', name: 'Settings', view: 'settings', roles: ['owner', 'manager'] },
+    { icon: '❓', name: 'Help & Support', view: 'help', roles: ['owner', 'manager', 'cleaner'] },
+  ]}
+];
+
+// AUTH FUNCTIONS
+function switchLoginTab(tab) {
+  document.querySelectorAll('.login-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.login-tab-content').forEach(c => c.style.display = 'none');
+  event.target.classList.add('active');
+  document.getElementById(tab + '-tab').style.display = 'block';
+}
+
+function doLogin() {
+  const email = document.getElementById('lgEmail').value;
+  const password = document.getElementById('lgPassword').value;
+  if(!email || !password) {
+    showToast('Please enter email and password', 'error');
+    return;
+  }
+
+  // Find user in companies
+  for(let compId in companies) {
+    const staff = companies[compId].staff.find(s => s.email === email);
+    if(staff) {
+      currentUser = { email, id: staff.id, role: staff.role, company: compId, name: staff.name };
+      state.role = staff.role;
+      state.company = compId;
+      showApp();
+      return;
+    }
+  }
+
+  showToast('User not found', 'error');
+}
+
+function doSignup() {
+  const company = document.getElementById('signupCompany').value;
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const role = document.getElementById('signupRole').value;
+
+  if(!company || !email || !password) {
+    showToast('Please fill all fields', 'error');
+    return;
+  }
+
+  if(password.length < 8) {
+    showToast('Password must be at least 8 characters', 'error');
+    return;
+  }
+
+  // Create new company workspace
+  const companyId = company.toLowerCase().replace(/\s/g, '-');
+  if(!companies[companyId]) {
+    companies[companyId] = {
+      name: company,
+      owner: role === 'owner' ? email : 'To be set',
+      staff: [
+        { id: 'user1', name: email.split('@')[0], email, role, rate: role === 'manager' ? 0 : 25, status: 'active', hired: new Date().toISOString().split('T')[0], site: null }
+      ],
+      sites: [],
+      invoices: [],
+      billing: { plan: 'starter', price: 49, status: 'trial', nextRenewal: new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0] },
+      settings: { currency: 'AUD', timezone: 'Australia/Sydney', language: 'en' }
+    };
+  }
+
+  currentUser = { email, id: 'user1', role, company: companyId, name: email.split('@')[0] };
+  state.role = role;
+  state.company = companyId;
+  showToast('Account created! Welcome to Compact', 'success');
+  showApp();
+}
+
+function demoLogin(role) {
+  const comp = companies['darwin-clean'];
+  const staff = comp.staff.find(s => s.role === role);
+  currentUser = { email: staff.email, id: staff.id, role, company: 'darwin-clean', name: staff.name };
+  state.role = role;
+  state.company = 'darwin-clean';
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('loginScreen').classList.add('hide');
+  document.getElementById('app').classList.remove('hide');
+  renderNav();
+  renderView();
+}
+
+// NAVIGATION AND VIEW RENDERING
+function renderNav() {
+  const nav = document.getElementById('navSection');
+  let html = '';
+
+  NAVIGATION.forEach(group => {
+    const visibleItems = group.items.filter(i => i.roles.includes(state.role));
+    if(visibleItems.length === 0) return;
+
+    html += `<div class="nav-group-title">${group.section}</div>`;
+    visibleItems.forEach(item => {
+      html += `<div class="nav-item ${state.view === item.view ? 'active' : ''}" onclick="go('${item.view}')">
+        <span class="nav-icon">${item.icon}</span>
+        <span>${item.name}</span>
+      </div>`;
+    });
+  });
+
+  nav.innerHTML = html;
+}
+
+function go(view) {
+  state.view = view;
+  renderView();
+  if(window.innerWidth <= 768) toggleSidebar();
+}
+
+function renderView() {
+  const v = document.getElementById('view');
+  const title = document.getElementById('pageTitle');
+  const comp = companies[state.company];
+
+  if(state.view === 'dashboard') {
+    title.textContent = 'Dashboard';
+    const monthlyRevenue = comp.sites.reduce((s,site) => s + site.contract, 0);
+    const activeStaff = comp.staff.filter(s => s.status === 'active').length;
+    const totalHours = comp.staff.filter(s => s.hoursThisWeek).reduce((s,s2) => s + (s2.hoursThisWeek || 0), 0);
+    const pendingInvoices = comp.invoices.filter(i => i.status === 'Sent').length;
+
+    v.innerHTML = `
+      <h1 class="page-title">Dashboard</h1>
+      <p class="section-subtitle">Welcome back, ${currentUser.name}</p>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">💰 Monthly Revenue</div>
+          <div class="kpi-value">$${monthlyRevenue.toLocaleString()}</div>
+          <div class="kpi-delta up">+8% from last month</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">👥 Active Team</div>
+          <div class="kpi-value">${activeStaff}</div>
+          <div class="kpi-delta neutral">${comp.sites.length} sites managed</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">⏱️ Hours This Week</div>
+          <div class="kpi-value">${totalHours}</div>
+          <div class="kpi-delta neutral">Across ${comp.staff.filter(s => s.hoursThisWeek).length} staff</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">💳 Pending Invoices</div>
+          <div class="kpi-value">${pendingInvoices}</div>
+          <div class="kpi-delta down">${comp.invoices.filter(i => i.status === 'Overdue').length} overdue</div>
+        </div>
+      </div>
+
+      <div class="section-title">Recent Activity</div>
+      <div class="card pad">
+        <table>
+          <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${comp.invoices.slice(0,5).map(inv => `
+              <tr>
+                <td><strong>${inv.id}</strong></td>
+                <td>${inv.client}</td>
+                <td>$${inv.amount.toLocaleString()}</td>
+                <td><span class="badge ${inv.status === 'Paid' ? 'good' : inv.status === 'Overdue' ? 'crit' : 'warn'}">${inv.status}</span></td>
+                <td><button class="btn sm" onclick="showInvoiceDetail('${inv.id}')">View</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  else if(state.view === 'sites') {
+    title.textContent = 'Sites';
+    v.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <h1 class="page-title">Sites</h1>
+        <button class="btn primary" onclick="showAddSiteModal()">+ Add Site</button>
+      </div>
+      <div class="card pad">
+        <table>
+          <thead><tr><th>Site Name</th><th>Client</th><th>Crew</th><th>Contract Value</th><th>Quality Score</th><th>Action</th></tr></thead>
+          <tbody>
+            ${comp.sites.map(site => `
+              <tr>
+                <td><strong>${site.name}</strong></td>
+                <td>${site.client}</td>
+                <td>${site.crew} staff</td>
+                <td>$${site.contract.toLocaleString()}/month</td>
+                <td><span class="badge ${site.score >= 95 ? 'good' : site.score >= 85 ? 'warn' : 'crit'}">${site.score}%</span></td>
+                <td><button class="btn sm" onclick="showSiteDetail('${site.id}')">View</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  else if(state.view === 'team') {
+    title.textContent = 'Team';
+    v.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <h1 class="page-title">Team Members</h1>
+        <button class="btn primary" onclick="showAddStaffModal()">+ Add Staff</button>
+      </div>
+      <div class="card pad">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Rate</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${comp.staff.map(staff => `
+              <tr>
+                <td><strong>${staff.name}</strong></td>
+                <td>${staff.email}</td>
+                <td><span class="badge info">${staff.role}</span></td>
+                <td>${staff.rate > 0 ? '$' + staff.rate + '/hr' : 'Owner'}</td>
+                <td><span class="badge ${staff.status === 'active' ? 'good' : 'neutral'}">${staff.status}</span></td>
+                <td><button class="btn sm" onclick="showStaffDetail('${staff.id}')">View</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  else if(state.view === 'invoicing') {
+    title.textContent = 'Invoicing';
+    const total = comp.invoices.reduce((s,i) => s + i.amount, 0);
+    v.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <h1 class="page-title">Invoicing</h1>
+        <button class="btn primary" onclick="showCreateInvoiceModal()">+ Create Invoice</button>
+      </div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Total Outstanding</div>
+          <div class="kpi-value">$${comp.invoices.filter(i => i.status !== 'Paid').reduce((s,i) => s + i.amount, 0).toLocaleString()}</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Paid This Month</div>
+          <div class="kpi-value">$${comp.invoices.filter(i => i.status === 'Paid').reduce((s,i) => s + i.amount, 0).toLocaleString()}</div>
+        </div>
+      </div>
+      <div class="card pad">
+        <table>
+          <thead><tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${comp.invoices.map(inv => `
+              <tr>
+                <td><strong>${inv.id}</strong></td>
+                <td>${inv.client}</td>
+                <td>$${inv.amount.toLocaleString()}</td>
+                <td>${inv.dueDate}</td>
+                <td><span class="badge ${inv.status === 'Paid' ? 'good' : inv.status === 'Overdue' ? 'crit' : 'warn'}">${inv.status}</span></td>
+                <td><button class="btn sm" onclick="showToast('Invoice action: ' + '${inv.id}', 'info')">Actions</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  else if(state.view === 'stock') {
+    title.textContent = 'Stock Management';
+    v.innerHTML = `
+      <h1 class="page-title">Stock Management</h1>
+      <p class="section-subtitle">Track inventory and consumption across all sites</p>
+
+      ${comp.sites.map(site => `
+        <div class="card pad" style="margin-bottom:20px">
+          <h3 class="section-title">${site.name}</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px">
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Supplies</div>
+              <div style="font-size:20px;font-weight:700;margin-bottom:8px">${site.stock.supplies}%</div>
+              <div class="stock-bar"><div class="stock-bar-fill" style="width:${site.stock.supplies}%"></div></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Equipment</div>
+              <div style="font-size:20px;font-weight:700;margin-bottom:8px">${site.stock.equipment}%</div>
+              <div class="stock-bar"><div class="stock-bar-fill" style="width:${site.stock.equipment}%"></div></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Chemicals</div>
+              <div style="font-size:20px;font-weight:700;margin-bottom:8px">${site.stock.chemicals}%</div>
+              <div class="stock-bar"><div class="stock-bar-fill" style="width:${site.stock.chemicals}%"></div></div>
+            </div>
+          </div>
+          <div style="padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Average Weekly Consumption</div>
+            <div style="font-weight:700">${site.consumption.avg_weekly} units · ${site.consumption.trend} trend</div>
+          </div>
+          <button class="btn primary sm" onclick="showStockUpdateModal('${site.id}')">Update Stock</button>
+        </div>
+      `).join('')}
+    `;
+  }
+  else if(state.view === 'settings') {
+    title.textContent = 'Settings';
+    v.innerHTML = `
+      <h1 class="page-title">Settings</h1>
+
+      <div class="card pad" style="margin-bottom:20px">
+        <h3 class="section-title">Billing & Subscription</h3>
+        <div style="padding:16px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:14px;font-weight:700;margin-bottom:4px">Growth Plan</div>
+              <div style="font-size:13px;color:var(--text-muted)">Next renewal: ${comp.billing.nextRenewal}</div>
+            </div>
+            <div style="font-size:20px;font-weight:700">$${comp.billing.price}/month</div>
+          </div>
+        </div>
+        <button class="btn primary" onclick="showBilling()">Manage Subscription</button>
+      </div>
+
+      <div class="card pad" style="margin-bottom:20px">
+        <h3 class="section-title">Company Settings</h3>
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input class="form-input" value="${comp.name}" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select"><option>${comp.settings.currency}</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Timezone</label>
+          <select class="form-select"><option>${comp.settings.timezone}</option></select>
+        </div>
+      </div>
+
+      <div class="card pad" style="margin-bottom:20px">
+        <h3 class="section-title">Data</h3>
+        <button class="btn" onclick="exportData()">📥 Export Data</button>
+        <button class="btn" onclick="importDataModal()" style="margin-left:8px">📤 Import Data</button>
+      </div>
+
+      <div class="card pad">
+        <h3 class="section-title">Account</h3>
+        <button class="btn danger" onclick="logout()">Sign Out</button>
+      </div>
+    `;
+  }
+  else if(state.view === 'help') {
+    title.textContent = 'Help & Support';
+    v.innerHTML = `
+      <h1 class="page-title">Help & Support</h1>
+      <div class="card pad">
+        <h3 class="section-title">Getting Started</h3>
+        <div style="margin-bottom:20px">
+          <h4 style="margin:0 0 8px;font-weight:700">Getting Started Guide</h4>
+          <p style="margin:0;color:var(--text-muted);font-size:13px">Learn how to set up your account, add staff, and create your first site.</p>
+        </div>
+        <h3 class="section-title">Common Tasks</h3>
+        <ul style="list-style:none;padding:0">
+          <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><a href="#">How to create a timesheet entry</a></li>
+          <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><a href="#">Setting up mobile field app for cleaners</a></li>
+          <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px"><a href="#">Generating invoices and payment reports</a></li>
+          <li style="padding:10px 0;font-size:13px"><a href="#">Managing team and roles</a></li>
+        </ul>
+      </div>
+      <div class="card pad" style="margin-top:20px">
+        <h3 class="section-title">Contact Support</h3>
+        <p style="color:var(--text-muted);margin:0 0 16px">Have a question? Email our support team</p>
+        <input class="form-input" placeholder="Your email" style="margin-bottom:10px">
+        <textarea class="form-input" placeholder="Describe your issue" style="height:120px;margin-bottom:10px"></textarea>
+        <button class="btn primary" onclick="showToast('Support ticket submitted', 'success')">Send Message</button>
+      </div>
+    `;
+  }
+  else {
+    v.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🚀</div><h3 class="empty-state-title">Coming Soon</h3><p class="empty-state-desc">This section is coming soon</p></div>';
+  }
+}
+
+// UI FUNCTIONS
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('open');
+}
+
+function toggleNotifications() {
+  const overlay = document.getElementById('notificationsOverlay');
+  overlay.classList.toggle('open');
+  const panel = document.getElementById('notificationsPanel');
+  const comp = companies[state.company];
+
+  const notifications = [
+    ...comp.invoices.filter(i => i.status === 'Overdue').map(i => ({ type: 'danger', icon: '💳', message: `Invoice ${i.id} is overdue` })),
+    ...comp.sites.filter(s => s.stock.supplies < 30).map(s => ({ type: 'warning', icon: '📦', message: `${s.name} supplies low (${s.stock.supplies}%)` })),
+  ];
+
+  panel.innerHTML = notifications.length === 0
+    ? '<div class="empty-state"><p class="empty-state-desc">No notifications</p></div>'
+    : notifications.map(n => `<div style="padding:12px;border-bottom:1px solid var(--border);display:flex;gap:12px">
+        <span style="font-size:20px">${n.icon}</span>
+        <div><div style="font-size:13px;font-weight:600">${n.message}</div></div>
+      </div>`).join('');
+}
+
+function closeNotifications() {
+  document.getElementById('notificationsOverlay').classList.remove('open');
+}
+
+function toggleAI() {
+  const panel = document.getElementById('aiPanel');
+  panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+}
+
+function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const message = input.value.trim();
+  if(!message) return;
+
+  const chat = document.getElementById('aiChat');
+  chat.innerHTML += `<div style="margin-bottom:12px;text-align:right"><div style="display:inline-block;background:var(--brand);color:var(--surface-1);padding:10px 14px;border-radius:12px;font-size:13px">${message}</div></div>`;
+
+  input.value = '';
+
+  setTimeout(() => {
+    const responses = [
+      'Your team completed 156 hours this week, 12% above target.',
+      'Central Hospital site quality score improved to 93% - great work!',
+      'Stock consumption at Westfield is stable. No reorder needed this week.',
+      'Recommendation: Consider adding 2 staff to Riverside site for peak hours.',
+    ];
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    chat.innerHTML += `<div style="margin-bottom:12px"><div style="display:inline-block;background:var(--surface-2);padding:10px 14px;border-radius:12px;font-size:13px">${response}</div></div>`;
+    chat.scrollTop = chat.scrollHeight;
+  }, 600);
+}
+
+function toggleUserMenu() {
+  showToast('Signed in as ' + currentUser.email, 'info');
+}
+
+function showBilling() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.innerHTML = `
+    <div class="modal" style="width:700px" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Select Your Plan</h2>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="plans-grid">
+          <div class="plan-card">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price">$49<small>/month</small></div>
+            <div class="plan-description">Perfect for solo operators</div>
+            <ul class="plan-features">
+              <li>Up to 5 sites</li>
+              <li>Up to 10 staff</li>
+              <li>Basic reporting</li>
+              <li>Mobile app</li>
+              <li>Email support</li>
+            </ul>
+            <button class="plan-cta" onclick="upgradeToplan('starter')">Choose Plan</button>
+          </div>
+          <div class="plan-card highlighted">
+            <div class="plan-badge">POPULAR</div>
+            <div class="plan-name">Growth</div>
+            <div class="plan-price">$199<small>/month</small></div>
+            <div class="plan-description">Best for growing teams</div>
+            <ul class="plan-features">
+              <li>Unlimited sites</li>
+              <li>Unlimited staff</li>
+              <li>Advanced analytics</li>
+              <li>Team management</li>
+              <li>Integrations</li>
+              <li>Priority support</li>
+            </ul>
+            <button class="plan-cta" onclick="upgradeToplan('growth')" style="background:var(--brand);color:var(--surface-1)">Current Plan</button>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Enterprise</div>
+            <div class="plan-price">Custom<small>pricing</small></div>
+            <div class="plan-description">For large operations</div>
+            <ul class="plan-features">
+              <li>Everything in Growth</li>
+              <li>Custom integrations</li>
+              <li>Dedicated support</li>
+              <li>SLA guarantees</li>
+              <li>Advanced security</li>
+            </ul>
+            <button class="plan-cta" onclick="showToast('Contact sales@compact.com', 'info')">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.onclick = () => overlay.remove();
+}
+
+function exportData() {
+  const comp = companies[state.company];
+  const data = {
+    company: comp.name,
+    exported: new Date().toISOString(),
+    staff: comp.staff,
+    sites: comp.sites,
+    invoices: comp.invoices,
+    billing: comp.billing,
+  };
+  const csv = JSON.stringify(data, null, 2);
+  const blob = new Blob([csv], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${comp.name.replace(/\s/g, '-')}-${new Date().getTime()}.json`;
+  a.click();
+  showToast('Data exported successfully', 'success');
+}
+
+function importDataModal() {
+  showToast('Import feature: Drag and drop CSV or JSON file', 'info');
+}
+
+function doSearch() {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+  if(!query) return;
+  const comp = companies[state.company];
+  const results = [
+    ...comp.sites.filter(s => s.name.toLowerCase().includes(query)),
+    ...comp.staff.filter(s => s.name.toLowerCase().includes(query)),
+  ];
+  if(results.length > 0) {
+    showToast(`Found ${results.length} result(s): ${results[0].name}`, 'info');
+  }
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('app').classList.add('hide');
+  document.getElementById('loginScreen').classList.remove('hide');
+  document.getElementById('lgEmail').value = '';
+  document.getElementById('lgPassword').value = '';
+}
+
+// MODALS AND UTILITIES
+function showAddSiteModal() {
+  showToast('Add site modal - coming soon', 'info');
+}
+
+function showSiteDetail(siteId) {
+  showToast('Site detail view for ' + siteId, 'info');
+}
+
+function showAddStaffModal() {
+  showToast('Add staff modal - coming soon', 'info');
+}
+
+function showStaffDetail(staffId) {
+  showToast('Staff detail view for ' + staffId, 'info');
+}
+
+function showCreateInvoiceModal() {
+  showToast('Create invoice modal - coming soon', 'info');
+}
+
+function showInvoiceDetail(invId) {
+  showToast('Invoice detail view for ' + invId, 'info');
+}
+
+function showStockUpdateModal(siteId) {
+  showToast('Update stock for site ' + siteId, 'info');
+}
+
+function upgradeToplan(plan) {
+  showToast(`Upgrading to ${plan} plan`, 'success');
+  document.querySelector('.modal-overlay').remove();
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('lgEmail').focus();
+});
+
+// Handle resize for responsive sidebar
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  }
+});
+</script>
+
+</body>
+</html>

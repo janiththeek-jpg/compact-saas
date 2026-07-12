@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0070D8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Compact Field">
+<title>Compact Field — Mobile Cleaner App</title>
+<style>
+:root{
+  --brand:#0070D8;--brand-hover:#0559b8;--success:#0a9f41;--danger:#c9302c;
+  --surface-1:#ffffff;--surface-2:#f8f9fa;--page:#f5f6f7;
+  --text:#1a1a1a;--text-secondary:#424245;--text-muted:#767680;
+  --border:#d0d1d6;--good:#0a9f41;--warn:#e07c23;--critical:#dc2626;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text";background:var(--page);color:var(--text)}
+body{display:flex;flex-direction:column;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* Main Layout */
+.app-container{display:flex;flex-direction:column;height:100vh;max-width:600px;margin:0 auto;background:var(--surface-1)}
+
+.app-header{background:linear-gradient(135deg,var(--brand),#006ec7);color:white;padding:16px;padding-top:max(16px,env(safe-area-inset-top));text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.app-header h1{font-size:18px;font-weight:700;margin-bottom:4px}
+.app-header .subtitle{font-size:12px;opacity:.9}
+
+.app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
+
+.app-footer{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:white;border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+.tab-btn{border:none;background:none;padding:12px 0;font-size:10px;color:var(--text-muted);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all .2s;border-top:3px solid transparent}
+.tab-btn.active{color:var(--brand);border-top-color:var(--brand)}
+.tab-icon{font-size:24px}
+
+/* Cards */
+.card{background:white;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+
+/* Clock In/Out */
+.clock-section{text-align:center;padding:20px 0}
+.clock-display{font-size:48px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.clock-status{font-size:14px;color:var(--text-muted);margin-bottom:16px}
+.clock-btn{width:100%;padding:16px;border:none;border-radius:12px;font-size:16px;font-weight:700;color:white;cursor:pointer;transition:all .2s}
+.clock-btn.in{background:linear-gradient(135deg,var(--good),#088630)}
+.clock-btn.out{background:linear-gradient(135deg,var(--danger),#a52622)}
+.clock-btn:active{transform:scale(.95)}
+
+/* Tasks */
+.task-card{background:white;border-left:4px solid var(--brand);padding:16px;margin-bottom:12px;border-radius:8px;border:1px solid var(--border)}
+.task-title{font-weight:700;font-size:14px;margin-bottom:6px}
+.task-site{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.task-desc{font-size:13px;color:var(--text-secondary);margin-bottom:12px}
+.task-actions{display:flex;gap:8px}
+.task-btn{padding:8px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.task-btn.primary{background:var(--brand);color:white}
+.task-btn.secondary{background:var(--surface-2);color:var(--text)}
+
+/* Stock Update */
+.stock-item{padding:16px;background:white;border:1px solid var(--border);border-radius:12px;margin-bottom:12px}
+.stock-label{font-weight:700;font-size:14px;margin-bottom:12px}
+.stock-input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:14px}
+.stock-bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.stock-bar-fill{height:100%;background:var(--good);border-radius:4px}
+
+/* Camera */
+.camera-preview{width:100%;height:300px;background:black;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;margin-bottom:12px;overflow:hidden}
+.camera-preview video{width:100%;height:100%;object-fit:cover}
+.camera-preview canvas{width:100%;height:100%;display:none}
+.photo-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.photo-thumb{width:100%;aspect-ratio:1;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-size:32px;border:1px solid var(--border);cursor:pointer;position:relative}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.photo-delete{position:absolute;top:4px;right:4px;background:#c9302c;color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer}
+
+/* Pay */
+.pay-card{background:linear-gradient(135deg,var(--brand),#006ec7);color:white;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,112,216,.2)}
+.pay-label{font-size:12px;opacity:.9;margin-bottom:4px}
+.pay-amount{font-size:32px;font-weight:700;margin-bottom:12px}
+.pay-detail{font-size:12px;opacity:.8}
+
+/* Rewards */
+.reward-card{background:white;border:2px solid var(--brand);border-radius:12px;padding:16px;text-align:center;margin-bottom:16px}
+.reward-points{font-size:28px;font-weight:700;color:var(--brand);margin-bottom:4px}
+.reward-label{font-size:12px;color:var(--text-muted);margin-bottom:12px}
+.reward-tier{font-weight:700;color:var(--text)}
+.leaderboard-item{display:flex;align-items:center;gap:12px;padding:12px;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.rank{width:32px;height:32px;border-radius:50%;background:var(--brand);color:white;display:grid;place-items:center;font-weight:700;flex-shrink:0}
+.leader-name{flex:1;font-weight:600;font-size:13px}
+.leader-pts{font-weight:700;color:var(--brand)}
+
+/* Photo Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:none;place-items:center;padding:16px}
+.modal-overlay.open{display:grid}
+.photo-modal{width:100%;max-width:500px;max-height:90vh;background:white;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.photo-modal-img{flex:1;overflow:auto;background:black;display:grid;place-items:center}
+.photo-modal-img img{max-width:100%;max-height:100%;object-fit:contain}
+.photo-modal-controls{padding:16px;display:flex;gap:8px}
+.modal-btn{flex:1;padding:10px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
+
+/* Badges */
+.badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700}
+.badge.good{background:#0a9f4115;color:var(--good)}
+.badge.warn{background:#e07c2315;color:var(--warn)}
+
+/* Loading */
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top:2px solid var(--brand);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:480px){
+  .app-header h1{font-size:16px}
+  .clock-display{font-size:40px}
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Header -->
+  <div class="app-header">
+    <h1>Compact Field</h1>
+    <div class="subtitle" id="userDisplay">Ready to work</div>
+  </div>
+
+  <!-- Content -->
+  <div class="app-content" id="tabContent">
+    <!-- Home Tab -->
+    <div id="tab-home" class="tab-panel">
+      <div class="card">
+        <div class="clock-section">
+          <div class="clock-display" id="clockDisplay">--:--</div>
+          <div class="clock-status" id="clockStatus">Ready to clock in</div>
+          <button class="clock-btn in" id="clockBtn" onclick="toggleClock()">Clock In</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">📍 Assigned Site</div>
+        <div id="assignedSite">
+          <div style="font-size:13px;color:var(--text-muted)">Loading...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">📊 This Week</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="text-align:center;padding:12px;background:var(--surface-2);border-radius:8px">
+            <div style="font-size:12px;color:var(--text-muted)">Hours</div>
+            <div style="font-size:24px;font-weight:700;margin-top:4px" id="weekHours">0</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--surface-2);border-radius:8px">
+            <div style="font-size:12px;color:var(--text-muted)">Earnings</div>
+            <div style="font-size:24px;font-weight:700;margin-top:4px;color:var(--good)" id="weekEarnings">$0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Tab -->
+    <div id="tab-tasks" class="tab-panel" style="display:none">
+      <div id="tasksList">
+        <!-- Generated dynamically -->
+      </div>
+    </div>
+
+    <!-- Stock Tab -->
+    <div id="tab-stock" class="tab-panel" style="display:none">
+      <div id="stockPanel">
+        <!-- Generated dynamically -->
+      </div>
+    </div>
+
+    <!-- Camera/Inspections Tab -->
+    <div id="tab-camera" class="tab-panel" style="display:none">
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">📸 Site Inspection</div>
+        <div class="camera-preview" id="cameraPreview">
+          <span>📷 Camera will appear here</span>
+          <video id="video" playsinline></video>
+          <canvas id="canvas"></canvas>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="task-btn primary" style="flex:1" onclick="startCamera()">📹 Start Camera</button>
+          <button class="task-btn secondary" style="flex:1" onclick="capturePhoto()">📸 Take Photo</button>
+        </div>
+        <div class="photo-gallery" id="photoGallery">
+          <!-- Generated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Pay Tab (visible to cleaners) -->
+    <div id="tab-pay" class="tab-panel" style="display:none">
+      <div class="pay-card">
+        <div class="pay-label">Current Week Pay</div>
+        <div class="pay-amount" id="payAmount">$0.00</div>
+        <div class="pay-detail">38 hours @ $38/hr</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">📝 Payment History</div>
+        <div id="paymentHistory">
+          <!-- Generated dynamically -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">💰 Direct Deposit Details</div>
+        <div style="padding:12px;background:var(--surface-2);border-radius:8px;font-size:12px;color:var(--text-muted);line-height:1.6">
+          💳 Account ending in ••••2847<br>
+          Updated: 2024-07-10<br>
+          <button class="task-btn secondary" style="width:100%;margin-top:8px">Update Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rewards Tab -->
+    <div id="tab-rewards" class="tab-panel" style="display:none">
+      <div class="reward-card">
+        <div class="reward-points" id="rewardPoints">1250</div>
+        <div class="reward-label">Total Points Earned</div>
+        <div class="reward-tier">🥇 Gold Member</div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">🏆 Leaderboard</div>
+        <div id="leaderboardList">
+          <!-- Generated dynamically -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:12px">🎁 Rewards You Can Claim</div>
+        <div style="padding:12px;background:var(--surface-2);border-radius:8px;text-align:center;color:var(--text-muted);font-size:13px">
+          Movie vouchers, coffee cards, bonuses, and more coming soon!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <div class="app-footer">
+    <button class="tab-btn active" id="tab-home-btn" onclick="switchTab('home')">
+      <div class="tab-icon">🏠</div>
+      <div>Home</div>
+    </button>
+    <button class="tab-btn" id="tab-tasks-btn" onclick="switchTab('tasks')">
+      <div class="tab-icon">✅</div>
+      <div>Tasks</div>
+    </button>
+    <button class="tab-btn" id="tab-camera-btn" onclick="switchTab('camera')">
+      <div class="tab-icon">📸</div>
+      <div>Inspect</div>
+    </button>
+    <button class="tab-btn" id="tab-pay-btn" onclick="switchTab('pay')">
+      <div class="tab-icon">💳</div>
+      <div>Pay</div>
+    </button>
+  </div>
+</div>
+
+<!-- Photo Viewer Modal -->
+<div class="modal-overlay" id="photoModal" onclick="closePhotoModal()">
+  <div class="photo-modal" onclick="event.stopPropagation()">
+    <div class="photo-modal-img" id="photoModalImg">
+      <img id="photoModalImage" src="">
+    </div>
+    <div class="photo-modal-controls">
+      <button class="modal-btn" style="background:var(--surface-2);color:var(--text)" onclick="closePhotoModal()">Close</button>
+      <button class="modal-btn" style="background:var(--danger);color:white" onclick="deleteModalPhoto()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>'use strict';
+
+// STATE
+let state = {
+  clockedIn: false,
+  clockInTime: null,
+  hoursThisWeek: 32,
+  rate: 38,
+  currentTab: 'home',
+  photos: [],
+  userId: 'grace',
+};
+
+// DATA
+const cleanerData = {
+  name: 'Grace Mensah',
+  email: 'grace@darwinclean.com',
+  rate: 38,
+  site: 'Westfield Tower',
+  hoursThisWeek: 32,
+  points: 1250,
+  rank: 1,
+  tasks: [
+    { id: 1, site: 'Westfield Tower', task: 'Clean Level 3', description: 'Vacuum carpets, dust surfaces, clean bathrooms', status: 'assigned', dueTime: '14:00' },
+    { id: 2, site: 'Westfield Tower', task: 'Restock supplies', description: 'Check and refill cleaning supplies in all restrooms', status: 'assigned', dueTime: '16:00' },
+    { id: 3, site: 'Westfield Tower', task: 'Floor polish', description: 'Polish lobby entrance', status: 'assigned', dueTime: '17:30' },
+  ],
+  stock: [
+    { name: 'Microfiber cloths', current: 45, consumed: 12, unit: 'pcs' },
+    { name: 'Floor cleaner', current: 3.2, consumed: 0.5, unit: 'L' },
+    { name: 'Degreaser', current: 2.1, consumed: 0.3, unit: 'L' },
+  ],
+  leaderboard: [
+    { rank: 1, name: 'Grace Mensah', points: 1250, badge: '🥇' },
+    { rank: 2, name: 'James Okoro', points: 980, badge: '🥈' },
+    { rank: 3, name: 'Maria Silva', points: 1150, badge: '🥉' },
+  ]
+};
+
+// CLOCK IN/OUT
+function toggleClock() {
+  state.clockedIn = !state.clockedIn;
+  const btn = document.getElementById('clockBtn');
+  const status = document.getElementById('clockStatus');
+  const display = document.getElementById('clockDisplay');
+
+  if(state.clockedIn) {
+    state.clockInTime = new Date();
+    btn.textContent = '🏁 Clock Out';
+    btn.classList.remove('in');
+    btn.classList.add('out');
+    status.textContent = 'Clocked in · ' + state.clockInTime.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+    showToast('Clocked in at ' + state.clockInTime.toLocaleTimeString(), 'success');
+    startClockDisplay();
+  } else {
+    btn.textContent = '⏰ Clock In';
+    btn.classList.remove('out');
+    btn.classList.add('in');
+    status.textContent = 'Ready to clock in';
+    if(state.clockInTime) {
+      const elapsed = (new Date() - state.clockInTime) / 3600000;
+      state.hoursThisWeek += elapsed;
+      showToast(`Clocked out · ${elapsed.toFixed(1)} hours logged`, 'success');
+    }
+    clearInterval(state.clockTimer);
+  }
+}
+
+function startClockDisplay() {
+  clearInterval(state.clockTimer);
+  state.clockTimer = setInterval(() => {
+    if(state.clockedIn && state.clockInTime) {
+      const now = new Date();
+      const elapsed = now - state.clockInTime;
+      const hours = Math.floor(elapsed / 3600000);
+      const minutes = Math.floor((elapsed % 3600000) / 60000);
+      document.getElementById('clockDisplay').textContent =
+        (hours > 0 ? hours + 'h ' : '') + minutes + 'm';
+    }
+  }, 1000);
+}
+
+// TAB SWITCHING
+function switchTab(tab) {
+  // Hide all panels
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  // Show selected tab
+  document.getElementById('tab-' + tab).style.display = 'block';
+  document.getElementById('tab-' + tab + '-btn').classList.add('active');
+  state.currentTab = tab;
+
+  // Initialize tab content
+  if(tab === 'home') initHome();
+  else if(tab === 'tasks') initTasks();
+  else if(tab === 'stock') initStock();
+  else if(tab === 'camera') initCamera();
+  else if(tab === 'pay') initPay();
+}
+
+// HOME TAB
+function initHome() {
+  document.getElementById('weekHours').textContent = Math.floor(state.hoursThisWeek);
+  document.getElementById('weekEarnings').textContent = '$' + (state.hoursThisWeek * state.rate).toFixed(2);
+  document.getElementById('assignedSite').innerHTML = `
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">${cleanerData.site}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Your primary work location</div>
+    <div style="display:flex;gap:8px;font-size:12px">
+      <span class="badge good">📍 Check-in available</span>
+      <span class="badge">⏱️ 8h shift today</span>
+    </div>
+  `;
+}
+
+// TASKS TAB
+function initTasks() {
+  const html = cleanerData.tasks.map(t => `
+    <div class="task-card">
+      <div class="task-title">${t.task}</div>
+      <div class="task-site">📍 ${t.site}</div>
+      <div class="task-desc">${t.description}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Due: ${t.dueTime}</div>
+      <div class="task-actions">
+        <button class="task-btn primary" onclick="startTask(${t.id})">Start Task</button>
+        <button class="task-btn secondary" onclick="showTaskDetail(${t.id})">Details</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('tasksList').innerHTML = html;
+}
+
+// STOCK TAB
+function initStock() {
+  const html = cleanerData.stock.map((s, i) => `
+    <div class="stock-item">
+      <div class="stock-label">${s.name}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Current: ${s.current} ${s.unit}</div>
+      <div class="stock-bar">
+        <div class="stock-bar-fill" style="width:${Math.min(s.current / 10 * 100, 100)}%"></div>
+      </div>
+      <input type="number" class="stock-input" placeholder="Qty consumed" id="stock-${i}">
+      <input type="number" class="stock-input" placeholder="Qty remaining" id="remain-${i}">
+      <button class="task-btn primary" onclick="updateStock(${i})" style="width:100%">Update Stock</button>
+    </div>
+  `).join('');
+  document.getElementById('stockPanel').innerHTML = html;
+}
+
+// CAMERA/INSPECTIONS
+function initCamera() {
+  renderPhotos();
+}
+
+let cameraStream = null;
+
+async function startCamera() {
+  try {
+    const video = document.getElementById('video');
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = cameraStream;
+    document.getElementById('cameraPreview').innerHTML = '';
+    document.getElementById('cameraPreview').appendChild(video);
+    video.play();
+    showToast('Camera ready for inspection photos', 'success');
+  } catch(err) {
+    showToast('Camera permission denied. Using demo mode.', 'error');
+  }
+}
+
+function capturePhoto() {
+  const canvas = document.getElementById('canvas');
+  const video = document.getElementById('video');
+
+  if(!video.srcObject) {
+    // Demo mode - generate placeholder
+    state.photos.push({
+      id: Date.now(),
+      timestamp: new Date().toLocaleString(),
+      data: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-size="24" text-anchor="middle" dominant-baseline="middle" fill="%23999"%3EInspection Photo %23' + (state.photos.length + 1) + '%3C/text%3E%3C/svg%3E'
+    });
+    showToast('Photo captured (demo)', 'success');
+    renderPhotos();
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+
+  const now = new Date();
+  const timestamp = now.toLocaleString() + ' · Westfield Tower, Level 3';
+
+  canvas.toBlob(blob => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      state.photos.push({
+        id: Date.now(),
+        timestamp: timestamp,
+        data: e.target.result
+      });
+      showToast('Photo saved', 'success');
+      renderPhotos();
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function renderPhotos() {
+  const gallery = document.getElementById('photoGallery');
+  if(state.photos.length === 0) {
+    gallery.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted)">No photos yet · Tap to take first inspection photo</div>';
+    return;
+  }
+  gallery.innerHTML = state.photos.map(p => `
+    <div class="photo-thumb" onclick="viewPhoto('${p.id}')">
+      <img src="${p.data}" alt="Inspection photo" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+      <button class="photo-delete" onclick="deletePhoto(event, '${p.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+function viewPhoto(photoId) {
+  const photo = state.photos.find(p => p.id == photoId);
+  if(!photo) return;
+  document.getElementById('photoModalImage').src = photo.data;
+  document.getElementById('photoModal').classList.add('open');
+  state.currentPhotoId = photoId;
+}
+
+function closePhotoModal() {
+  document.getElementById('photoModal').classList.remove('open');
+}
+
+function deletePhoto(e, photoId) {
+  e.stopPropagation();
+  state.photos = state.photos.filter(p => p.id != photoId);
+  renderPhotos();
+  showToast('Photo deleted', 'info');
+}
+
+function deleteModalPhoto() {
+  deletePhoto({stopPropagation:()=>{}}, state.currentPhotoId);
+  closePhotoModal();
+}
+
+// PAY TAB
+function initPay() {
+  const weekEarnings = (state.hoursThisWeek * state.rate).toFixed(2);
+  document.getElementById('payAmount').textContent = '$' + weekEarnings;
+
+  const history = [
+    { date: '2024-07-15', hours: 38, amount: 1444 },
+    { date: '2024-07-08', hours: 35, amount: 1330 },
+    { date: '2024-07-01', hours: 40, amount: 1520 },
+  ];
+
+  document.getElementById('paymentHistory').innerHTML = history.map(h => `
+    <div style="padding:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+      <div>
+        <div style="font-weight:600;font-size:13px">${h.date}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${h.hours} hours</div>
+      </div>
+      <div style="font-weight:700;color:var(--good)">$${h.amount}</div>
+    </div>
+  `).join('');
+}
+
+// REWARDS TAB (simplified)
+function initRewards() {
+  document.getElementById('rewardPoints').textContent = cleanerData.points;
+  document.getElementById('leaderboardList').innerHTML = cleanerData.leaderboard.map(l => `
+    <div class="leaderboard-item">
+      <div class="rank">${l.rank}</div>
+      <div class="leader-name">${l.name}</div>
+      <div class="leader-pts">${l.points}</div>
+    </div>
+  `).join('');
+}
+
+// UTILITIES
+function startTask(taskId) {
+  showToast('Task started · Good luck!', 'success');
+}
+
+function showTaskDetail(taskId) {
+  showToast('Task detail view', 'info');
+}
+
+function updateStock(index) {
+  showToast('Stock updated', 'success');
+}
+
+function showToast(msg, type) {
+  const container = document.body;
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed;bottom:100px;right:16px;left:16px;
+    padding:12px 16px;background:white;border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    z-index:1000;font-size:13px;font-weight:600;
+  `;
+  if(type === 'success') toast.style.borderLeft = '4px solid var(--good)';
+  else if(type === 'error') toast.style.borderLeft = '4px solid var(--danger)';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('userDisplay').textContent = cleanerData.name;
+  initHome();
+  startClockDisplay();
+});
+
+// Handle tab visibility
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden && state.clockedIn) {
+    showToast('Still clocked in', 'warning');
+  }
+});
+</script>
+
+</body>
+</html>
